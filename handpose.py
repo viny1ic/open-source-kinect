@@ -2,17 +2,54 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import math
+import time
 
 print(cv2.__version__)
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
+mode = int(input('Press 0 for mouse mode\nPress 1 for gesture mdoe\nPress 2 for tetris mode'))
 
-def control_volume(angle, dist):
-  if(40<angle<140 and dist>80):
-    pyautogui.press('volumeup')
-  if(-140<angle<-40 and dist>80):
-    pyautogui.press('volumedown')
+
+
+def gesture(angle, dist, isUp):
+  if(isUp[1] and isUp[2] and isUp[3]):
+    if((165<angle<180 or -165<angle<-140) and dist>80):
+      pyautogui.keyDown('ctrlleft')
+      pyautogui.press('tab')
+      pyautogui.keyUp('ctrlleft')
+      time.sleep(0.1)
+      return
+    if((0<angle<15 or -15<angle<0) and dist>80):
+      pyautogui.keyDown('ctrlleft')
+      pyautogui.keyDown('shiftleft')
+      pyautogui.press('tab')
+      pyautogui.keyUp('shiftleft')
+      pyautogui.keyUp('ctrlleft')
+      time.sleep(0.1)
+      return
+  
+  elif(isUp[1] and isUp[2]):
+    if((165<angle<180 or -180<angle<-165) and dist>80):
+      pyautogui.keyDown('altleft')
+      pyautogui.press('tab')
+      pyautogui.keyUp('altleft')
+      time.sleep(0.1)
+      return
+    if((0<angle<15 or -15<angle<0) and dist>80):
+      pyautogui.keyDown('altleft')
+      pyautogui.keyDown('shiftleft')
+      pyautogui.press('tab')
+      pyautogui.keyUp('altleft')
+      pyautogui.keyUp('shiftleft')
+      time.sleep(0.1)
+      return  
+
+  elif(isUp[1]):
+    if(40<angle<140 and dist>80):
+      pyautogui.press('volumeup')
+    if(-140<angle<-40 and dist>80):
+      pyautogui.press('volumedown')
 
 def move_cursor(coord):
   pyautogui.moveTo(coord[0]*1920/640, coord[1]*1080/480)
@@ -26,6 +63,20 @@ def mouse_buttons(isUp):
     return
   if(isUp[3]):
     pyautogui.click(button='right')
+
+def tetris(isUp):
+  if(isUp[1] and isUp[2] and isUp[3] and isUp[4] and isUp[0]):
+    return
+  if(isUp[1]):
+    if(isUp[2] and isUp[3] and isUp[4]):
+      pyautogui.press('up')
+      return
+    if(isUp[2] and isUp[3]):
+      pyautogui.press('down')
+    if(isUp[2]):
+      pyautogui.press('right')
+    elif(isUp[0]):
+      pyautogui.press('left')
 
 # For webcam input:
 hands = mp_hands.Hands(max_num_hands=1,
@@ -75,8 +126,15 @@ while cap.isOpened():
       angle = (math.atan2(offset[1],offset[0]))*180/math.pi
       dist = math.hypot(offset[0],offset[1])
       print(angle, " ", dist)
-      move_cursor(fingers[1])
-      mouse_buttons(isUp)
+      if(mode==0):
+        move_cursor(fingers[1])
+        mouse_buttons(isUp)
+      elif(mode==1):
+        gesture(angle, dist, isUp)
+      
+      elif(mode==3):
+        tetris(isUp)
+        
   cv2.imshow('MediaPipe Hands', image)
   if cv2.waitKey(5) & 0xFF == 27:
     break
