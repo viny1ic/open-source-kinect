@@ -4,13 +4,10 @@ import pyautogui
 import math
 import time
 
-print(cv2.__version__)
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 mode = int(input('Press 0 for mouse mode\nPress 1 for gesture mdoe\nPress 2 for tetris mode'))
-
-
 
 def gesture(angle, dist, isUp):
   if(isUp[1] and isUp[2] and isUp[3]):
@@ -51,8 +48,6 @@ def gesture(angle, dist, isUp):
     if(-140<angle<-40 and dist>80):
       pyautogui.press('volumedown')
 
-def move_cursor(coord):
-  pyautogui.moveTo(coord[0]*1920/640, coord[1]*1080/480)
 
 def mouse_buttons(isUp):
   if(isUp[1] and isUp[2] and isUp[3] and isUp[4]):
@@ -89,8 +84,7 @@ while cap.isOpened():
   if not success:
     break
   image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-  # To improve performance, optionally mark the image as not writeable to
-  # pass by reference.
+
   image.flags.writeable = False
   results = hands.process(image)
 
@@ -100,6 +94,7 @@ while cap.isOpened():
     for hand_landmarks in results.multi_hand_landmarks:
       fingers = []
       isUp=[False,False,False,False,False]
+      # Track fingers
       fingers.append((int((hand_landmarks.landmark[4].x)*640), int((hand_landmarks.landmark[4].y)*480)))
       fingers.append((int((hand_landmarks.landmark[8].x)*640), int((hand_landmarks.landmark[8].y)*480)))
       fingers.append((int((hand_landmarks.landmark[12].x)*640), int((hand_landmarks.landmark[12].y)*480)))
@@ -127,12 +122,12 @@ while cap.isOpened():
       dist = math.hypot(offset[0],offset[1])
       print(angle, " ", dist)
       if(mode==0):
-        move_cursor(fingers[1])
+        pyautogui.moveTo(fingers[1][0]*1920/640, fingers[1][1]*1080/480)
         mouse_buttons(isUp)
       elif(mode==1):
         gesture(angle, dist, isUp)
       
-      elif(mode==3):
+      elif(mode==2):
         tetris(isUp)
         
   cv2.imshow('MediaPipe Hands', image)
@@ -140,6 +135,3 @@ while cap.isOpened():
     break
 hands.close()
 cap.release()
-
-#0 = wrist,2 = thumb base,4 = thumb tip,8 = index_tip, 12 = mid_finger_tip
-#16 = 4th finger tip, 20 = little_finger_tip
