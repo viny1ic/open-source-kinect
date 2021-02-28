@@ -36,9 +36,9 @@ Using the gesture mode of the open source kinect, you can do tasks like change s
 * press spacebar/enter to start
 * hold out index finger to take contol
 * hold out both index and middle finger to move the piece to the right
-
-# Future scope:
-This virtual controller can be used to control various different games and not just tetris
 * hold out both index finger and thumb to move the piece to the left
 * hold out index, middle and ring finger to push the piece down 
 * hold out all four fingers (except thumb) to change orientation of the piece
+
+# Future scope:
+This virtual controller can be used to control various different games and not just tetris
